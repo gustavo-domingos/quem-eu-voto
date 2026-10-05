@@ -71,5 +71,9 @@ Todos respondem JSON (exceto fotos e PDFs) e aceitam só `GET`.
 | `/api/noticias?nome=`                         | notícias recentes (GDELT)                                    |
 | `/api/fotos/{ano}/{uf}/{sq}`                  | foto oficial da candidatura                                  |
 
-Erros: `400` (parâmetro inválido), `404` (não encontrado), `502` (fonte oficial fora do ar),
-com a mensagem em texto no corpo.
+Erros: `400` (parâmetro inválido), `404` (não encontrado), `502` (fonte oficial fora do ar) e
+`500` (erro inesperado), sempre em JSON, com uma mensagem pronta para mostrar no site:
+
+```json
+{"erro": "Dados de candidaturas do TSE indisponíveis no momento", "status": 502}
+```

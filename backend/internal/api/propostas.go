@@ -20,7 +20,7 @@ func propostaHandler(p *propostas.Propostas) http.HandlerFunc {
 		q := r.URL.Query()
 		ano, uf, sq := q.Get("ano"), strings.ToUpper(q.Get("uf")), q.Get("sq")
 		if !propostas.ValidarAnoUF(ano, uf) || !tse.PadraoSQ.MatchString(sq) {
-			http.Error(w, "Parâmetros inválidos", http.StatusBadRequest)
+			escreverErro(w, "Parâmetros inválidos", http.StatusBadRequest)
 			return
 		}
 		// Espera até 15 s; se for OCR e ainda não acabou, devolve a versão parcial ("a processar").
@@ -33,7 +33,7 @@ func propostaHandler(p *propostas.Propostas) http.HandlerFunc {
 				return
 			}
 			if r.Context().Err() == nil {
-				http.Error(w, "Não foi possível obter a proposta no TSE", http.StatusBadGateway)
+				escreverErro(w, "Não foi possível obter a proposta no TSE agora", http.StatusBadGateway)
 			}
 			return
 		}
@@ -52,7 +52,7 @@ func arquivoPropostaHandler(p *propostas.Propostas) http.HandlerFunc {
 		}
 		z, err := p.Pacote(r.Context(), ano, uf)
 		if err != nil {
-			http.Error(w, "Propostas indisponíveis", http.StatusBadGateway)
+			escreverErro(w, "Propostas indisponíveis", http.StatusBadGateway)
 			return
 		}
 		f, ok := z.Arquivos[nome]
@@ -62,7 +62,7 @@ func arquivoPropostaHandler(p *propostas.Propostas) http.HandlerFunc {
 		}
 		fluxo, err := z.AbrirFluxo(r.Context(), nome)
 		if err != nil {
-			http.Error(w, "Proposta indisponível", http.StatusBadGateway)
+			escreverErro(w, "Proposta indisponível", http.StatusBadGateway)
 			return
 		}
 		defer fluxo.Close()

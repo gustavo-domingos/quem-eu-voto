@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Alert, Box, Card, Checkbox, Chip, Divider, FormControl, FormLabel, Input, Option, Select, Stack, Typography,
 } from '@mui/joy';
-import { buscarAPI, MENSAGEM_ERRO, urlFoto } from '../../services/api';
+import { buscarAPI, mensagemDeErro, urlFoto } from '../../services/api';
 import { ESTADOS } from '../../utils/constantes';
 import { formatarData } from '../../utils/formatacao';
 import { FiltrosPessoa } from '../../components/FiltrosPessoa';
@@ -10,7 +10,7 @@ import { Foto } from '../../components/Foto';
 import { Grade, GradeCarregando } from '../../components/Grade';
 import { FaixaJustica, FiltroJustica } from '../../components/Justica';
 import { ListaVices } from '../../components/ListaVices';
-import { Avisos, Mensagem } from '../../components/Mensagens';
+import { Avisos, ErroCarregamento, Mensagem } from '../../components/Mensagens';
 import { Metricas } from '../../components/Metricas';
 import { Paginacao } from '../../components/Paginacao';
 import { estiloClicavel, propsClicavel } from '../../components/clicavel';
@@ -126,6 +126,7 @@ function Candidatos({ cargo, onAbrirPerfil }) {
   const [resultado, setResultado] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [tentativa, setTentativa] = useState(0);
 
   // Qualquer mudança de filtro volta à primeira página.
   const filtro = (setter) => (valor) => {
@@ -160,13 +161,13 @@ function Candidatos({ cargo, onAbrirPerfil }) {
       .catch((err) => {
         if (err.name === 'AbortError') return;
         console.error('Erro ao procurar candidatos:', err);
-        setErro(MENSAGEM_ERRO);
+        setErro(mensagemDeErro(err));
         setResultado(null);
         setLoading(false);
       });
 
     return () => controller.abort();
-  }, [cargo, uf, buscaAplicada, ordem, inaptos, soJustica, partido, genero, faixa, pagina]);
+  }, [cargo, uf, buscaAplicada, ordem, inaptos, soJustica, partido, genero, faixa, pagina, tentativa]);
 
   const mudarPagina = (p) => {
     setPagina(p);
@@ -251,7 +252,7 @@ function Candidatos({ cargo, onAbrirPerfil }) {
       {loading && !resultado ? (
         <GradeCarregando />
       ) : erro ? (
-        <Mensagem cor="danger">{erro}</Mensagem>
+        <ErroCarregamento mensagem={erro} onTentarDeNovo={() => setTentativa((t) => t + 1)} />
       ) : resultado.candidatos.length === 0 ? (
         <Mensagem>Nenhum candidato encontrado.</Mensagem>
       ) : (

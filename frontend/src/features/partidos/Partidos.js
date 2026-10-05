@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box, Card, Chip, FormControl, FormLabel, Input, Sheet, Stack, Table, Typography } from '@mui/joy';
-import { buscarAPI, MENSAGEM_ERRO } from '../../services/api';
-import { Avisos, Mensagem } from '../../components/Mensagens';
+import { buscarAPI, mensagemDeErro } from '../../services/api';
+import { Avisos, ErroCarregamento, Mensagem } from '../../components/Mensagens';
 
 // [chave, rótulo, função que lê o valor] — colunas numéricas ordenáveis.
 const COLUNAS_2026 = [
@@ -44,16 +44,18 @@ function Cabecalho({ chave, children, ordem, onOrdenar, titulo }) {
 function Partidos() {
   const [dados, setDados] = useState(null);
   const [erro, setErro] = useState(null);
+  const [tentativa, setTentativa] = useState(0);
   const [busca, setBusca] = useState('');
   const [ordem, setOrdem] = useState({ chave: 'total', crescente: false });
 
   useEffect(() => {
     const controller = new AbortController();
+    setErro(null);
     buscarAPI('/api/partidos', controller.signal)
       .then(setDados)
-      .catch((err) => { if (err.name !== 'AbortError') setErro(MENSAGEM_ERRO); });
+      .catch((err) => { if (err.name !== 'AbortError') setErro(mensagemDeErro(err)); });
     return () => controller.abort();
-  }, []);
+  }, [tentativa]);
 
   const ordenar = (chave) => setOrdem((o) => ({
     chave,
@@ -61,7 +63,7 @@ function Partidos() {
     crescente: o.chave === chave ? !o.crescente : chave === 'sigla' || chave === 'numero',
   }));
 
-  if (erro) return <Mensagem cor="danger">{erro}</Mensagem>;
+  if (erro) return <ErroCarregamento mensagem={erro} onTentarDeNovo={() => setTentativa((t) => t + 1)} />;
   if (!dados) return <Mensagem>A carregar partidos…</Mensagem>;
 
   const termo = busca.trim().toLowerCase();

@@ -20,7 +20,7 @@ func fotoHandler(f *tse.Fotos) http.HandlerFunc {
 
 		zr, err := f.Pacote(r.Context(), ano, uf)
 		if err != nil {
-			http.Error(w, "Fotos indisponíveis", http.StatusBadGateway)
+			escreverErro(w, "Fotos indisponíveis", http.StatusBadGateway)
 			return
 		}
 		conteudo, extensao, existe, err := zr.Ler(fmt.Sprintf("F%s%s_div", uf, sq))
@@ -30,7 +30,7 @@ func fotoHandler(f *tse.Fotos) http.HandlerFunc {
 		}
 		if err != nil {
 			log.Printf("foto %s/%s/%s: %v", ano, uf, sq, err)
-			http.Error(w, "Foto indisponível", http.StatusBadGateway)
+			escreverErro(w, "Foto indisponível", http.StatusBadGateway)
 			return
 		}
 

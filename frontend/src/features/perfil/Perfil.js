@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import {
   Accordion, AccordionDetails, AccordionGroup, AccordionSummary, Alert, Box, Button, Chip, CircularProgress, Divider, Link, List, ListItem, Modal, ModalClose, ModalDialog, Sheet, Stack, Tab, TabList, TabPanel, Table, Tabs, Typography,
 } from '@mui/joy';
-import { API_URL, buscarAPI, urlFoto } from '../../services/api';
+import { API_URL, buscarAPI, mensagemDeErro, urlFoto } from '../../services/api';
 import { formatarData } from '../../utils/formatacao';
 import { Foto } from '../../components/Foto';
 import { Metricas } from '../../components/Metricas';
@@ -557,7 +557,7 @@ function PropostaGoverno({ refProposta }) {
     setErro(null);
     buscarAPI(`/api/propostas?ano=${ano}&uf=${uf}&sq=${sq}`, controller.signal)
       .then(setA)
-      .catch((err) => { if (err.name !== 'AbortError') setErro('Não foi possível obter a proposta no TSE agora.'); });
+      .catch((err) => { if (err.name !== 'AbortError') setErro(mensagemDeErro(err, 'Não foi possível obter a proposta no TSE agora.')); });
     return () => controller.abort();
   }, [ano, uf, sq, tentativa]);
 
@@ -676,7 +676,7 @@ function Perfil({ id, onFechar }) {
     const controller = new AbortController();
     buscarAPI(`/api/perfil?id=${encodeURIComponent(id)}`, controller.signal)
       .then(setP)
-      .catch((err) => { if (err.name !== 'AbortError') setErro('Não foi possível carregar o perfil.'); });
+      .catch((err) => { if (err.name !== 'AbortError') setErro(mensagemDeErro(err, 'Não foi possível carregar o perfil.')); });
     return () => controller.abort();
   }, [id]);
 

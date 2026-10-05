@@ -16,6 +16,20 @@ func escreverJSON(w http.ResponseWriter, v any) {
 	}
 }
 
+// ErroDTO é o corpo de todas as respostas de erro: o frontend mostra Erro a quem usa o site.
+type ErroDTO struct {
+	Erro   string `json:"erro"`
+	Status int    `json:"status"`
+}
+
+// escreverErro responde com o código HTTP e a mensagem em JSON.
+func escreverErro(w http.ResponseWriter, mensagem string, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(ErroDTO{Erro: mensagem, Status: status})
+}
+
 var statusPorTipo = map[transparencia.TipoErro]int{
 	transparencia.EntradaInvalida: http.StatusBadRequest,
 	transparencia.NaoEncontrado:   http.StatusNotFound,
@@ -29,11 +43,11 @@ func responderErro(w http.ResponseWriter, r *http.Request, err error) {
 	}
 	var e *transparencia.Erro
 	if errors.As(err, &e) {
-		http.Error(w, e.Mensagem, statusPorTipo[e.Tipo])
+		escreverErro(w, e.Mensagem, statusPorTipo[e.Tipo])
 		return
 	}
 	log.Printf("%s %s: %v", r.Method, r.URL.RequestURI(), err)
-	http.Error(w, "Erro interno", http.StatusInternalServerError)
+	escreverErro(w, "Erro inesperado no servidor. Tente novamente em instantes.", http.StatusInternalServerError)
 }
 
 // responder escreve o resultado de uma chamada ao serviço, ou o erro.

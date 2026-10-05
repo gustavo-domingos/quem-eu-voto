@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Alert, Box, Button, Card, Chip, LinearProgress, Stack, Typography } from '@mui/joy';
-import { buscarAPI } from '../../services/api';
+import { buscarAPI, mensagemDeErro } from '../../services/api';
 
 const numero = (n) => n.toLocaleString('pt-BR');
 const pct = (n, casas = 2) => `${n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas })}%`;
@@ -48,7 +48,12 @@ export function PainelApuracao({ cargo, uf }) {
     const controller = new AbortController();
     buscarAPI(`/api/apuracao?cargo=${cargo}&uf=${nacional ? 'BR' : uf}`, controller.signal)
       .then((d) => { setDados(d); setErro(null); })
-      .catch((err) => { if (err.name !== 'AbortError') setErro('A apuração do TSE não respondeu agora. Tentamos de novo em 1 minuto.'); });
+      .catch((err) => {
+        if (err.name === 'AbortError') return;
+        // Sem conexão com a API, a página já mostra o erro principal; o painel fica em silêncio.
+        if (err.status === 0) { setErro(null); return; }
+        setErro(`${mensagemDeErro(err, 'A apuração do TSE não respondeu agora').replace(/\.$/, '')}. Tentamos de novo em 1 minuto.`);
+      });
     return () => controller.abort();
   }, [cargo, uf, nacional, semUF, tick]);
 

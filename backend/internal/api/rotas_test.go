@@ -1,10 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"quemeuvoto/internal/transparencia"
@@ -45,8 +45,16 @@ func TestParametrosInvalidos(t *testing.T) {
 	h := roteador()
 	for url, msg := range casos {
 		rec := pedir(h, http.MethodGet, url)
-		if rec.Code != http.StatusBadRequest || strings.TrimSpace(rec.Body.String()) != msg {
-			t.Errorf("%s = %d %q; esperado 400 %q", url, rec.Code, rec.Body.String(), msg)
+		var corpo ErroDTO
+		if err := json.Unmarshal(rec.Body.Bytes(), &corpo); err != nil {
+			t.Errorf("%s: corpo não é JSON: %q", url, rec.Body.String())
+			continue
+		}
+		if rec.Code != http.StatusBadRequest || corpo.Erro != msg || corpo.Status != http.StatusBadRequest {
+			t.Errorf("%s = %d %+v; esperado 400 %q", url, rec.Code, corpo, msg)
+		}
+		if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
+			t.Errorf("%s: Content-Type = %q", url, ct)
 		}
 	}
 }

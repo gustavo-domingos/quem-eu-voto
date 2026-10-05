@@ -36,7 +36,7 @@ func recuperar(h http.Handler) http.Handler {
 					panic(p)
 				}
 				log.Printf("panic em %s %s: %v", r.Method, r.URL.Path, p)
-				http.Error(w, "Erro interno", http.StatusInternalServerError)
+				escreverErro(w, "Erro inesperado no servidor. Tente novamente em instantes.", http.StatusInternalServerError)
 			}
 		}()
 		h.ServeHTTP(w, r)

@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import {
   Alert, Box, Card, Chip, Divider, FormControl, FormLabel, Input, Option, Select, Sheet, Stack, Typography,
 } from '@mui/joy';
-import { buscarAPI, MENSAGEM_ERRO, urlFoto } from '../../services/api';
+import { buscarAPI, mensagemDeErro, urlFoto } from '../../services/api';
 import { ESTADOS } from '../../utils/constantes';
 import { FiltrosPessoa } from '../../components/FiltrosPessoa';
 import { Foto } from '../../components/Foto';
 import { Grade, GradeCarregando } from '../../components/Grade';
 import { FaixaJustica, FiltroJustica } from '../../components/Justica';
 import { ListaVices } from '../../components/ListaVices';
-import { Avisos, Mensagem } from '../../components/Mensagens';
+import { Avisos, ErroCarregamento, Mensagem } from '../../components/Mensagens';
 import { Metricas } from '../../components/Metricas';
 import { Paginacao } from '../../components/Paginacao';
 import { SeletorMunicipio } from '../../components/SeletorMunicipio';
@@ -256,6 +256,7 @@ function Eleitos({ cargo, onAbrirPerfil }) {
   const [resultado, setResultado] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState(null);
+  const [tentativa, setTentativa] = useState(0);
 
   const filtro = (setter) => (valor) => {
     setter(valor);
@@ -287,12 +288,12 @@ function Eleitos({ cargo, onAbrirPerfil }) {
       .catch((err) => {
         if (err.name === 'AbortError') return;
         console.error('Erro ao procurar eleitos:', err);
-        setErro(MENSAGEM_ERRO);
+        setErro(mensagemDeErro(err));
         setResultado(null);
         setLoading(false);
       });
     return () => controller.abort();
-  }, [cargo, uf, municipio, buscaAplicada, ordem, em2026, soJustica, partido, genero, faixa, nivel, pagina]);
+  }, [cargo, uf, municipio, buscaAplicada, ordem, em2026, soJustica, partido, genero, faixa, nivel, pagina, tentativa]);
 
   const mudarUf = (valor) => {
     setUf(valor);
@@ -417,7 +418,7 @@ function Eleitos({ cargo, onAbrirPerfil }) {
       {loading && !resultado ? (
         <GradeCarregando />
       ) : erro ? (
-        <Mensagem cor="danger">{erro}</Mensagem>
+        <ErroCarregamento mensagem={erro} onTentarDeNovo={() => setTentativa((t) => t + 1)} />
       ) : resultado.eleitos.length === 0 ? (
         <Mensagem>Nenhum eleito encontrado com estes filtros.</Mensagem>
       ) : (
