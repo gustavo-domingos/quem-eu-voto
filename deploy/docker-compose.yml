@@ -1,0 +1,30 @@
+# Backend + Caddy (HTTPS automático com Let's Encrypt).
+# Uso: copie .env.example para .env, ajuste o domínio e rode `docker compose up -d --build`.
+services:
+  api:
+    build: ../backend
+    restart: unless-stopped
+    environment:
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+    volumes:
+      - dados:/dados
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMINIO: ${DOMINIO:?defina DOMINIO no arquivo .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_dados:/data
+      - caddy_config:/config
+
+volumes:
+  dados:
+  caddy_dados:
+  caddy_config:

@@ -1,0 +1,18 @@
+# Dependências e builds
+node_modules/
+frontend/build/
+frontend/coverage/
+backend/bin/
+*.exe
+*.test
+
+# Configuração local (os .env.example vão para o repositório)
+.env
+.env.local
+.env.*.local
+
+# Sistema e editores
+.DS_Store
+Thumbs.db
+.idea/
+*.log

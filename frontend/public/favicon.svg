@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B4A8B"/>
+      <stop offset="0.5" stop-color="#0B6BCB"/>
+      <stop offset="1" stop-color="#1A7F37"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#g)"/>
+  <!-- cédula entrando na urna -->
+  <rect x="186" y="92" width="140" height="170" rx="14" fill="#fff"/>
+  <path d="M220 172 L248 200 L294 144" fill="none" stroke="#1A7F37" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- urna -->
+  <rect x="104" y="236" width="304" height="44" rx="14" fill="#fff"/>
+  <rect x="166" y="252" width="180" height="12" rx="6" fill="#0B4A8B"/>
+  <rect x="128" y="290" width="256" height="132" rx="20" fill="#fff"/>
+  <rect x="216" y="338" width="80" height="14" rx="7" fill="#0B6BCB" opacity="0.35"/>
+</svg>
